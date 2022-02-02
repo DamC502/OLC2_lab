@@ -1,0 +1,72 @@
+/*Utilizar la herramienta para Java (JLex y Cup)
+
+    Escriba una gramática que reconozca una lista de palabras y que imprima la lista de palabras de tal manera que la primera palabra este de último.
+
+Ejemplo:
+Entrada: convence, a, la, mente, y, no, a, la, gente.
+Salida: a, la, mente, y, no, a, la, gente, convence.
+
+    Escriba una gramática que reconozca números binarios y que muestre cuantas 0’s y 1’s tiene la entrada.​
+
+Ejemplo:
+Entrada: 1001101
+Salida: 4 veces 1, 3 veces 0
+
+No usar atributos, solamente es permitido variables globales.
+*/
+
+/*
+ * Ejemplo desarrollado por Erick Navarro
+ * Blog: e-navarro.blogspot.com
+ * Julio - 2018
+ */
+
+package analizador;
+import java_cup.runtime.*;
+
+parser code
+{:
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/
+     String primeraPalabra;
+     int unos = 0;
+     int ceros = 0;
+
+    public void syntax_error(Symbol s){
+        System.out.println("Error Sintáctico en la Línea " + (s.left) +
+        " Columna "+s.right+ ". No se esperaba este componente: " +s.value+".");
+    }
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico
+     * en el que ya no es posible una recuperación de errores.
+     **/
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.out.println("Error síntactico irrecuperable en la Línea " +
+        (s.left)+ " Columna "+s.right+". Componente " + s.value +
+        " no reconocido.");
+    }
+:}
+
+terminal String TK_UNO;
+terminal String TK_CERO;
+terminal String TK_DOT;
+
+non terminal S;
+non terminal NoTerminal ListaBinario;
+non terminal NoTerminal Lista;
+
+start with S;
+
+S::=  Lista;
+
+Lista ::= ListaBinario:Lb1 TK_DOT ListaBinario:Lb2 {: System.out.println(Lb1.getEntero() + Lb2.getDecimal());  :}
+    | ListaBinario:Lb {: System.out.println(Lb.getEntero()); :} ;
+
+ListaBinario ::= ListaBinario:Lb TK_UNO
+            {: RESULT = new NoTerminal(Lb.getDecimal() + 1/Lb.getNivel(), Lb.getEntero()*2, Lb.getNivel()*1); :}
+    | ListaBinario:Lb TK_CERO
+            {: RESULT = new NoTerminal(Lb.getDecimal(), Lb.getEntero()*2, Lb.getNivel()*1); :}
+    | TK_UNO {: RESULT = new NoTerminal(0.5,1,4); :}
+    | TK_CERO {: RESULT = new NoTerminal(0.0,0,4); :} ;
